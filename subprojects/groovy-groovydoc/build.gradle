@@ -16,8 +16,14 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
+ext {
+    javaparserVersion = '3.8.2'
+}
+
 dependencies {
     compile rootProject
+    compile "com.github.javaparser:javaparser-symbol-solver-core:$javaparserVersion"
     testCompile rootProject.sourceSets.test.runtimeClasspath
     compile project(':groovy-cli-picocli')
     compile project(':groovy-templates')
