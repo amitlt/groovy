@@ -18,7 +18,7 @@
  */
 
 ext {
-    javaparserVersion = '3.8.2'
+    javaparserVersion = '3.8.3'
 }
 
 dependencies {
