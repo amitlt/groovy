@@ -22,6 +22,7 @@ class SimpleJavaClassDocAssemblerTest extends GroovyTestCase {
     void testClassDoc() {
         def src = SimpleJavaClassDocAssemblerTest.getResourceAsStream('/org/apache/groovy/tools/groovydoc/SimpleJavaClassDocAssemblerTest1.java').text
         def sjcda = new SimpleJavaClassDocAssembler('org/apache/groovy/tools/groovydoc', 'SimpleJavaClassDocAssemblerTest1.java', src, [], new Properties())
-        sjcda.parse()
+        sjcda.assemble()
     }
+
 }

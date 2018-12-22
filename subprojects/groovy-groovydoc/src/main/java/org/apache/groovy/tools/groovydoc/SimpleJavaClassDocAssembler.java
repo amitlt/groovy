@@ -19,16 +19,17 @@
 package org.apache.groovy.tools.groovydoc;
 
 import com.github.javaparser.JavaParser;
-import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.AnnotationDeclaration;
+import com.github.javaparser.ast.body.AnnotationMemberDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.EnumConstantDeclaration;
 import com.github.javaparser.ast.body.EnumDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.comments.JavadocComment;
-import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+import com.github.javaparser.ast.nodeTypes.NodeWithJavadoc;
+import com.github.javaparser.ast.visitor.GenericVisitorAdapter;
+import com.github.javaparser.javadoc.Javadoc;
 import org.codehaus.groovy.groovydoc.GroovyClassDoc;
 import org.codehaus.groovy.tools.groovydoc.LinkArgument;
 
@@ -37,9 +38,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.stream.Collectors;
 
-public class SimpleJavaClassDocAssembler {
+public class SimpleJavaClassDocAssembler extends GenericVisitorAdapter<Object, Object> {
     private final String packagePath;
     private final String javaSourceContent;
     private final String className;
@@ -62,72 +62,69 @@ public class SimpleJavaClassDocAssembler {
         }
     }
 
-    private Map<String, GroovyClassDoc> parse() {
-        new VoidVisitorAdapter<Object>() {
-            @Override
-            public void visit(JavadocComment comment, Object arg) {
-                super.visit(comment, arg);
-
-                System.out.println(collect(comment));
-//
-//                String title = String.format("%s (%s)", comment.getName(), packagePath);
-//                System.out.println(title);
-//                System.out.println(comment.get());
-//                System.out.println("--------------------------");
-//                Javadoc javadoc = comment.get().asJavadocComment().parse();
-//                System.out.println(javadoc.getDescription().toText());
-//                javadoc.getBlockTags().forEach(e -> System.out.println(e.getName() + ":" + e.getContent()));
-//                System.out.println("===========================");
-            }
-        }.visit(JavaParser.parse(javaSourceContent), null);
-
+    public Map<String, GroovyClassDoc> getGroovyClassDocs() {
         return classDocs;
     }
 
-    private static String collect(JavadocComment comment) {
-        Optional<Node> commentedNode = comment.getCommentedNode();
+    public void assemble() {
+        this.visit(JavaParser.parse(javaSourceContent), null);
+    }
 
-        if (!commentedNode.isPresent()) {
-            return null;
+    @Override
+    public Object visit(final ClassOrInterfaceDeclaration n, final Object arg) {
+        processJavadoc(n);
+        return super.visit(n, arg);
+    }
+
+    @Override
+    public Object visit(final MethodDeclaration n, final Object arg) {
+        processJavadoc(n);
+        return super.visit(n, arg);
+    }
+
+    @Override
+    public Object visit(final ConstructorDeclaration n, final Object arg) {
+        processJavadoc(n);
+        return super.visit(n, arg);
+    }
+
+    @Override
+    public Object visit(final FieldDeclaration n, final Object arg) {
+        processJavadoc(n);
+        return super.visit(n, arg);
+    }
+
+    @Override
+    public Object visit(final EnumDeclaration n, final Object arg) {
+        processJavadoc(n);
+        return super.visit(n, arg);
+    }
+
+    @Override
+    public Object visit(final EnumConstantDeclaration n, final Object arg) {
+        processJavadoc(n);
+        return super.visit(n, arg);
+    }
+
+    @Override
+    public Object visit(final AnnotationDeclaration n, final Object arg) {
+        processJavadoc(n);
+        return super.visit(n, arg);
+    }
+
+    @Override
+    public Object visit(final AnnotationMemberDeclaration n, final Object arg) {
+        processJavadoc(n);
+        return super.visit(n, arg);
+    }
+
+    private void processJavadoc(NodeWithJavadoc n) {
+        Optional<Javadoc> optionalJavadoc = n.getJavadoc();
+
+        if (!optionalJavadoc.isPresent()) {
+            return;
         }
 
-        Node node = commentedNode.get();
-
-        if (node instanceof MethodDeclaration) {
-            MethodDeclaration methodDeclaration = (MethodDeclaration) node;
-            return "Method " + methodDeclaration.getDeclarationAsString();
-        }
-        if (node instanceof ConstructorDeclaration) {
-            ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) node;
-            return "Constructor " + constructorDeclaration.getDeclarationAsString();
-        }
-        if (node instanceof FieldDeclaration) {
-            FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
-            List<String> varNames = fieldDeclaration.getVariables().stream().map(v -> v.getName().getId()).collect(Collectors.toList());
-            return "Field " + String.join(", ", varNames);
-        }
-        if (node instanceof EnumConstantDeclaration) {
-            EnumConstantDeclaration enumConstantDeclaration = (EnumConstantDeclaration) node;
-            return "Enum Constant" + enumConstantDeclaration.getName();
-        }
-        if (node instanceof ClassOrInterfaceDeclaration) {
-            ClassOrInterfaceDeclaration classOrInterfaceDeclaration = (ClassOrInterfaceDeclaration) node;
-
-            if (classOrInterfaceDeclaration.isInterface()) {
-                return "Interface " + classOrInterfaceDeclaration.getName() + ": " + comment.parse().getDescription().toText();
-            } else {
-                return "Class " + classOrInterfaceDeclaration.getName() + ": " + comment.parse().getDescription().toText();
-            }
-        }
-        if (node instanceof EnumDeclaration) {
-            EnumDeclaration enumDeclaration = (EnumDeclaration) node;
-            return "Enum " + enumDeclaration.getName();
-        }
-        if (node instanceof AnnotationDeclaration) {
-            AnnotationDeclaration annotationDeclaration = (AnnotationDeclaration) node;
-            return "Annotation " + annotationDeclaration.getName();
-        }
-
-        return node.toString();
+        System.out.println(optionalJavadoc.get().getDescription().toText());
     }
 }

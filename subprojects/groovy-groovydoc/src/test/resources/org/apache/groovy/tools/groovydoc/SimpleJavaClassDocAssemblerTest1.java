@@ -28,6 +28,37 @@ public class SimpleJavaClassDocAssemblerTest1 {
     public static final String HELLO = "hello";
 
     /**
+     * constructor of SimpleJavaClassDocAssemblerTest1
+     */
+    public SimpleJavaClassDocAssemblerTest1() {
+    }
+
+    /**
+     * This an inner class doc
+     */
+    public static class SomeInnerClass {
+        /**
+         * The greeting word of inner class
+         */
+        public static final String INNER_HELLO = "hello";
+
+        /**
+         * constructor of SomeInnerClass
+         */
+        public SomeInnerClass() {}
+
+        /**
+         * say hello from inner class
+         *
+         * @param name some name
+         * @return the greeting words
+         */
+        public String innerHello(String name) {
+            return HELLO + "," + name;
+        }
+    }
+
+    /**
      * say hello
      *
      * @param name some name
@@ -36,4 +67,18 @@ public class SimpleJavaClassDocAssemblerTest1 {
     public String hello(String name) {
         return HELLO + "," + name;
     }
+}
+
+/**
+ * some class
+ */
+class SomeClass {
+
+}
+
+/**
+ * some enum
+ */
+enum SomeEnum {
+
 }
